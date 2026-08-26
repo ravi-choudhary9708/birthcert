@@ -1,69 +1,95 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* Navbar */}
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <Link href="/" className="navbar-brand">
+            <span className="emblem">🏛️</span>
+            <span>Birth Certificate Portal</span>
+          </Link>
+          <div className="navbar-nav">
+            <Link href="/track" className="nav-link">
+              🔍 <span>Track Application</span>
+            </Link>
+            <Link href="/apply" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '14px' }}>
+              Apply Now
+            </Link>
+            <Link href="/login" className="btn btn-ghost" style={{ padding: '8px 16px', fontSize: '14px' }}>
+              Staff Login
+            </Link>
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero-grid">
+          {/* Left */}
+          <div>
+            <div className="hero-badge">
+              🇮🇳 Government of India — Civil Registration
+            </div>
+            <h1>
+              Register Your Child's{' '}
+              <span>Birth Certificate</span>{' '}
+              Online
+            </h1>
+            <p>
+              Submit your birth certificate application from the comfort of your home. Get your application number instantly and track progress in real-time.
+            </p>
+            <div className="hero-actions">
+              <Link href="/apply" className="btn btn-primary btn-lg">
+                📋 Apply Now
+              </Link>
+              <Link href="/track" className="btn btn-ghost btn-lg">
+                🔍 Track Application
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="flex gap-4 mt-6" style={{ marginTop: '40px' }}>
+              {[
+                { label: 'Applications', value: '10,000+' },
+                { label: 'Approved', value: '98%' },
+                { label: 'Processing Time', value: '3–5 Days' },
+              ].map(s => (
+                <div key={s.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent)' }}>{s.value}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — How it works */}
+          <div className="hero-card">
+            <h2 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-muted)' }}>
+              How It Works
+            </h2>
+            <div className="hero-steps">
+              {[
+                { icon: '📋', color: 'blue', title: 'Fill the Form', desc: 'Enter child, parent and birth details. Takes 5–10 minutes.' },
+                { icon: '📬', color: 'green', title: 'Get Application Number', desc: 'Instantly receive your unique application number via email.' },
+                { icon: '🔍', color: 'purple', title: 'Verifier Reviews', desc: 'Our verification team checks and validates your application.' },
+                { icon: '✅', color: 'gold', title: 'Operator Approves', desc: 'Final approval issued. Collect certificate from office.' },
+              ].map((step, i) => (
+                <div className="hero-step" key={i}>
+                  <div className={`hero-step-icon ${step.color}`}>{step.icon}</div>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </>
   );
 }
