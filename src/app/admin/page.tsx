@@ -88,10 +88,10 @@ export default function AdminPage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-      <div style={{ textAlign: 'center', color: 'white' }}>
-        <div className="spinner" style={{ width: '50px', height: '50px', borderWidth: '4px', borderColor: 'white', borderTopColor: 'transparent', margin: '0 auto 20px' }} />
-        <div style={{ fontSize: '18px', fontWeight: 600 }}>Loading Analytics...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-light)' }}>
+      <div style={{ textAlign: 'center', color: 'var(--color-navy)' }}>
+        <div className="spinner spinner-dark" style={{ width: '48px', height: '48px', borderWidth: '4px', margin: '0 auto 16px' }} />
+        <div style={{ fontSize: '16px', fontWeight: 700 }}>Loading District Analytics...</div>
       </div>
     </div>
   );
@@ -104,10 +104,10 @@ export default function AdminPage() {
   };
 
   const statusColors: Record<string, string> = {
-    pending: '#f59e0b',
-    verifier_approved: '#3b82f6',
-    operator_approved: '#10b981',
-    rejected: '#ef4444'
+    pending: '#F57C00',
+    verifier_approved: '#0F8B8D',
+    operator_approved: '#2E7D32',
+    rejected: '#D32F2F'
   };
 
   // Calculate key insights
@@ -119,15 +119,12 @@ export default function AdminPage() {
     const rejected = analytics.statusCounts.find(s => s._id === 'rejected')?.count || 0;
     const pending = analytics.statusCounts.find(s => s._id === 'pending')?.count || 0;
     
-    const successRate = total > 0 ? ((approved / total) * 100).toFixed(1) : 0;
-    const rejectionRate = total > 0 ? ((rejected / total) * 100).toFixed(1) : 0;
+    const successRate = total > 0 ? ((approved / total) * 100).toFixed(1) : '0';
+    const rejectionRate = total > 0 ? ((rejected / total) * 100).toFixed(1) : '0';
     const avgDays = (analytics.turnaroundStats.averageTurnaroundHours / 24).toFixed(1);
     
-    // Find busiest hospital
     const busiestHospital = analytics.hospitalCounts[0];
-    
-    // Find slowest processing
-    const isSlow = analytics.turnaroundStats.averageTurnaroundHours > 72; // > 3 days
+    const isSlow = analytics.turnaroundStats.averageTurnaroundHours > 72;
     
     return {
       successRate,
@@ -144,63 +141,61 @@ export default function AdminPage() {
 
   return (
     <>
-      {/* Header with gradient */}
+      {/* Header (Navy #1B3B6F) */}
       <div style={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '32px 24px',
-        color: 'white',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        backgroundColor: 'var(--color-navy)',
+        padding: '24px 24px',
+        color: '#FFFFFF',
+        borderBottom: '3px solid var(--color-teal)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
       }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px', color: 'white' }}>
-              📊 Madhubani District Analytics
-            </h1>
-            <p style={{ opacity: 0.9, fontSize: '14px' }}>Birth Certificate Registration System - Administrative Dashboard</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '42px', height: '42px', backgroundColor: '#FFFFFF', borderRadius: 'var(--r-md)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px'
+            }}>🏛️</div>
+            <div>
+              <h1 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '2px', color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+                District Civil Registration Analytics
+              </h1>
+              <p style={{ opacity: 0.85, fontSize: '13px' }}>Government of India — Centralized Administrative Monitoring Dashboard</p>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', opacity: 0.8 }}>Logged in as</div>
+              <div style={{ fontSize: '11px', opacity: 0.75, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Administrator</div>
               <div style={{ fontSize: '14px', fontWeight: 600 }}>{user?.name}</div>
             </div>
-            <button onClick={logout} style={{
-              background: 'rgba(255,255,255,0.2)',
-              border: '1px solid rgba(255,255,255,0.3)',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 500
-            }}>
-              Logout
+            <button onClick={logout} className="btn btn-header-ghost btn-sm">
+              Sign Out
             </button>
           </div>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div style={{ background: 'white', borderBottom: '2px solid #e5e7eb', position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid var(--color-border)', position: 'sticky', top: 0, zIndex: 100, boxShadow: 'var(--shadow-sm)' }}>
         <div className="container" style={{ display: 'flex', gap: '0', padding: '0 24px' }}>
           {[
-            { id: 'overview', label: '📈 Overview', icon: '📈' },
-            { id: 'hospitals', label: '🏥 Hospitals', icon: '🏥' },
-            { id: 'performance', label: '⚡ Performance', icon: '⚡' },
-            { id: 'applications', label: '📋 Applications', icon: '📋' }
+            { id: 'overview', label: '📊 System Overview', icon: '📊' },
+            { id: 'hospitals', label: '🏥 Enrolled Hospitals', icon: '🏥' },
+            { id: 'performance', label: '⚡ SLA Performance', icon: '⚡' },
+            { id: 'applications', label: '📋 Application Master List', icon: '📋' }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               style={{
-                padding: '16px 24px',
-                background: activeTab === tab.id ? 'white' : 'transparent',
+                padding: '14px 20px',
+                background: 'transparent',
                 border: 'none',
-                borderBottom: activeTab === tab.id ? '3px solid #667eea' : '3px solid transparent',
-                color: activeTab === tab.id ? '#667eea' : '#6b7280',
+                borderBottom: activeTab === tab.id ? '3px solid var(--color-teal)' : '3px solid transparent',
+                color: activeTab === tab.id ? 'var(--color-navy)' : 'var(--color-gray-text)',
                 cursor: 'pointer',
                 fontSize: '14px',
-                fontWeight: 600,
-                transition: 'all 0.2s'
+                fontWeight: activeTab === tab.id ? 700 : 500,
+                transition: 'all 0.15s ease'
               }}
             >
               {tab.label}
@@ -218,58 +213,62 @@ export default function AdminPage() {
                 {/* Key Metrics - Hero Cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                   <div style={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    color: 'white',
-                    boxShadow: '0 4px 6px rgba(102,126,234,0.4)'
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid var(--color-border)',
+                    borderTop: '4px solid var(--color-navy)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '22px',
+                    boxShadow: 'var(--shadow-sm)'
                   }}>
-                    <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px', fontWeight: 500 }}>Total Applications</div>
-                    <div style={{ fontSize: '42px', fontWeight: '800', marginBottom: '8px' }}>{analytics.totalApplications}</div>
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>Across {analytics.totalHospitals} hospitals</div>
+                    <div style={{ fontSize: '13px', color: 'var(--color-gray-text)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Total Applications</div>
+                    <div style={{ fontSize: '38px', fontWeight: '800', color: 'var(--color-navy)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>{analytics.totalApplications}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>Across {analytics.totalHospitals} enrolled institutions</div>
                   </div>
 
                   <div style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    color: 'white',
-                    boxShadow: '0 4px 6px rgba(16,185,129,0.4)'
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid var(--color-border)',
+                    borderTop: '4px solid var(--color-success)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '22px',
+                    boxShadow: 'var(--shadow-sm)'
                   }}>
-                    <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px', fontWeight: 500 }}>Success Rate</div>
-                    <div style={{ fontSize: '42px', fontWeight: '800', marginBottom: '8px' }}>{insights?.successRate}%</div>
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>
+                    <div style={{ fontSize: '13px', color: 'var(--color-gray-text)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Approval Rate</div>
+                    <div style={{ fontSize: '38px', fontWeight: '800', color: 'var(--color-success)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>{insights?.successRate}%</div>
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>
                       {analytics.statusCounts.find(s => s._id === 'operator_approved')?.count || 0} certificates issued
                     </div>
                   </div>
 
                   <div style={{
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    color: 'white',
-                    boxShadow: '0 4px 6px rgba(59,130,246,0.4)'
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid var(--color-border)',
+                    borderTop: '4px solid var(--color-teal)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '22px',
+                    boxShadow: 'var(--shadow-sm)'
                   }}>
-                    <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px', fontWeight: 500 }}>Avg. Processing Time</div>
-                    <div style={{ fontSize: '42px', fontWeight: '800', marginBottom: '8px' }}>
-                      {insights?.avgDays} <span style={{ fontSize: '24px' }}>days</span>
+                    <div style={{ fontSize: '13px', color: 'var(--color-gray-text)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Avg Turnaround Time</div>
+                    <div style={{ fontSize: '38px', fontWeight: '800', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
+                      {insights?.avgDays} <span style={{ fontSize: '20px', fontWeight: 600 }}>days</span>
                     </div>
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                      {insights?.isSlow ? '⚠️ Slower than target' : '✅ Within target'}
+                    <div style={{ fontSize: '12px', color: insights?.isSlow ? 'var(--color-alert)' : 'var(--color-success)', fontWeight: 600 }}>
+                      {insights?.isSlow ? '⚠️ Review SLA threshold' : '✅ Within target SLA (3–5 days)'}
                     </div>
                   </div>
 
                   <div style={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    color: 'white',
-                    boxShadow: '0 4px 6px rgba(245,158,11,0.4)'
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid var(--color-border)',
+                    borderTop: '4px solid var(--color-alert)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '22px',
+                    boxShadow: 'var(--shadow-sm)'
                   }}>
-                    <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px', fontWeight: 500 }}>Pending Review</div>
-                    <div style={{ fontSize: '42px', fontWeight: '800', marginBottom: '8px' }}>{insights?.pending || 0}</div>
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                      {((insights?.pending || 0) / (insights?.total || 1) * 100).toFixed(0)}% of total
+                    <div style={{ fontSize: '13px', color: 'var(--color-gray-text)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Pending In Queue</div>
+                    <div style={{ fontSize: '38px', fontWeight: '800', color: 'var(--color-alert)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>{insights?.pending || 0}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>
+                      {((Number(insights?.pending || 0) / (analytics.totalApplications || 1)) * 100).toFixed(0)}% of total workload
                     </div>
                   </div>
                 </div>
@@ -277,30 +276,31 @@ export default function AdminPage() {
                 {/* Key Insights Alert Box */}
                 <div className="card" style={{ 
                   marginBottom: '32px',
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                  border: '2px solid #f59e0b',
+                  backgroundColor: 'var(--color-info-bg)',
+                  border: '1px solid rgba(15, 139, 141, 0.3)',
+                  borderLeft: '4px solid var(--color-teal)',
                   padding: '20px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'start', gap: '16px' }}>
-                    <div style={{ fontSize: '32px' }}>💡</div>
+                    <div style={{ fontSize: '28px' }}>💡</div>
                     <div style={{ flex: 1 }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px', color: '#92400e' }}>
-                        Key Insights & Recommendations
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: 'var(--color-navy)' }}>
+                        Administrative Insights & Operating Directives
                       </h3>
-                      <ul style={{ fontSize: '14px', color: '#78350f', lineHeight: '1.8', paddingLeft: '20px' }}>
+                      <ul style={{ fontSize: '14px', color: 'var(--color-text-primary)', lineHeight: '1.8', paddingLeft: '20px' }}>
                         <li>
-                          <strong>Busiest Hospital:</strong> {insights?.busiestHospital?._id.hospitalName} (H{insights?.busiestHospital?._id.hospitalNo.toString().padStart(2, '0')}) 
-                          with {insights?.busiestHospital?.count} applications
+                          <strong>Busiest Institutional Center:</strong> {insights?.busiestHospital?._id.hospitalName} (H{insights?.busiestHospital?._id.hospitalNo.toString().padStart(2, '0')}) 
+                          with {insights?.busiestHospital?.count} registered cases
                         </li>
                         <li>
-                          <strong>Rejection Rate:</strong> {insights?.rejectionRate}% - 
+                          <strong>Application Rejection Ratio:</strong> {insights?.rejectionRate}% — 
                           {parseFloat(insights?.rejectionRate || '0') > 10 
-                            ? ' Consider training hospitals on common rejection reasons' 
-                            : ' Within acceptable range'}
+                            ? ' Institutional verification data errors detected; schedule hospital coordination meeting' 
+                            : ' Well within operational tolerance'}
                         </li>
                         <li>
-                          <strong>Processing Speed:</strong> Average of {insights?.avgDays} days - 
-                          {insights?.isSlow ? ' Action needed to reduce turnaround time' : ' Meeting service standards'}
+                          <strong>Average Processing Speed:</strong> {insights?.avgDays} days — 
+                          {insights?.isSlow ? ' Bottleneck identified in verification stage' : ' Statutory service standards fulfilled'}
                         </li>
                       </ul>
                     </div>
@@ -309,8 +309,8 @@ export default function AdminPage() {
 
                 {/* Status Distribution with Visual Bars */}
                 <div className="card" style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
-                    📊 Application Status Distribution
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: 'var(--color-navy)' }}>
+                    📊 Statutory Application Status Breakdown
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {analytics.statusCounts.map(item => {
@@ -318,25 +318,25 @@ export default function AdminPage() {
                       return (
                         <div key={item._id}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '14px', fontWeight: 600, color: statusColors[item._id] }}>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: statusColors[item._id] || 'var(--color-navy)' }}>
                               {statusLabels[item._id] || item._id}
                             </span>
-                            <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>
                               {item.count} ({percentage.toFixed(1)}%)
                             </span>
                           </div>
                           <div style={{ 
-                            background: '#e5e7eb', 
-                            height: '12px', 
-                            borderRadius: '6px', 
+                            background: '#E8EAED', 
+                            height: '10px', 
+                            borderRadius: '5px', 
                             overflow: 'hidden' 
                           }}>
                             <div style={{
                               width: `${percentage}%`,
                               height: '100%',
-                              background: statusColors[item._id],
+                              backgroundColor: statusColors[item._id] || 'var(--color-teal)',
                               transition: 'width 0.5s ease',
-                              borderRadius: '6px'
+                              borderRadius: '5px'
                             }} />
                           </div>
                         </div>
@@ -348,26 +348,26 @@ export default function AdminPage() {
                 {/* Monthly Trend */}
                 {analytics.monthlyIssuance.length > 0 && (
                   <div className="card" style={{ marginBottom: '32px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
-                      📈 Monthly Issuance Trend (Last 12 Months)
+                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: 'var(--color-navy)' }}>
+                      📈 Monthly Certificate Issuance Trend
                     </h3>
-                    <div style={{ display: 'flex', alignItems: 'end', gap: '8px', height: '200px' }}>
+                    <div style={{ display: 'flex', alignItems: 'end', gap: '12px', height: '180px', padding: '10px 0' }}>
                       {analytics.monthlyIssuance.map(item => {
-                        const maxCount = Math.max(...analytics.monthlyIssuance.map(i => i.count));
+                        const maxCount = Math.max(...analytics.monthlyIssuance.map(i => i.count)) || 1;
                         const height = (item.count / maxCount) * 100;
                         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                         
                         return (
                           <div key={`${item._id.year}-${item._id.month}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 600 }}>{item.count}</div>
+                            <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-navy)' }}>{item.count}</div>
                             <div style={{
                               width: '100%',
                               height: `${height}%`,
-                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              backgroundColor: 'var(--color-teal)',
                               borderRadius: '4px 4px 0 0',
-                              minHeight: '20px'
+                              minHeight: '12px'
                             }} />
-                            <div style={{ fontSize: '11px', color: '#6b7280' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', fontWeight: 600 }}>
                               {monthNames[item._id.month - 1]}
                             </div>
                           </div>
@@ -380,43 +380,43 @@ export default function AdminPage() {
                 {/* Rejection Analysis */}
                 {analytics.rejectionReasons.length > 0 && (
                   <div className="card">
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px' }}>
-                      ❌ Top Rejection Reasons
+                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: 'var(--color-navy)' }}>
+                      ❌ Primary Rejection Reasons Breakdown
                     </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       {analytics.rejectionReasons.slice(0, 5).map((item, index) => {
-                        const maxCount = analytics.rejectionReasons[0].count;
+                        const maxCount = analytics.rejectionReasons[0].count || 1;
                         const percentage = (item.count / maxCount) * 100;
                         
                         return (
-                          <div key={item._id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div key={item._id} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                             <div style={{
-                              width: '32px',
-                              height: '32px',
+                              width: '30px',
+                              height: '30px',
                               borderRadius: '50%',
-                              background: index === 0 ? '#ef4444' : index === 1 ? '#f59e0b' : '#6b7280',
+                              backgroundColor: index === 0 ? 'var(--color-danger)' : index === 1 ? 'var(--color-alert)' : 'var(--color-gray-text)',
                               color: 'white',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '14px',
+                              fontSize: '13px',
                               fontWeight: 700,
                               flexShrink: 0
                             }}>
                               {index + 1}
                             </div>
                             <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{item._id}</div>
-                              <div style={{ background: '#e5e7eb', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px', color: 'var(--color-navy)' }}>{item._id}</div>
+                              <div style={{ background: '#E8EAED', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
                                 <div style={{
                                   width: `${percentage}%`,
                                   height: '100%',
-                                  background: '#ef4444',
+                                  backgroundColor: 'var(--color-danger)',
                                   borderRadius: '4px'
                                 }} />
                               </div>
                             </div>
-                            <div style={{ fontSize: '16px', fontWeight: 700, color: '#ef4444', minWidth: '40px', textAlign: 'right' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-danger)', minWidth: '40px', textAlign: 'right' }}>
                               {item.count}
                             </div>
                           </div>
@@ -432,19 +432,18 @@ export default function AdminPage() {
             {activeTab === 'hospitals' && (
               <>
                 <div style={{ marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px' }}>
-                    🏥 Hospital Performance Analysis
+                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '6px', color: 'var(--color-navy)' }}>
+                    🏥 Enrolled Institutional Health Centers
                   </h2>
-                  <p style={{ color: '#6b7280', fontSize: '14px' }}>
-                    Detailed breakdown of applications across all {analytics.totalHospitals} hospitals in Madhubani district
+                  <p style={{ color: 'var(--color-gray-text)', fontSize: '14px' }}>
+                    Institutional workload breakdown across all {analytics.totalHospitals} enrolled hospitals
                   </p>
                 </div>
 
-                {/* Hospital Stats Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
                   {analytics.hospitalCounts.map((item, index) => {
                     const isTopPerformer = index < 3;
-                    const maxCount = analytics.hospitalCounts[0].count;
+                    const maxCount = analytics.hospitalCounts[0].count || 1;
                     const relativePerformance = (item.count / maxCount) * 100;
                     
                     return (
@@ -452,7 +451,7 @@ export default function AdminPage() {
                         key={item._id.hospitalId} 
                         className="card"
                         style={{
-                          border: isTopPerformer ? '2px solid #10b981' : '1px solid #e5e7eb',
+                          borderLeft: isTopPerformer ? '4px solid var(--color-success)' : '4px solid var(--color-teal)',
                           position: 'relative',
                           padding: '20px'
                         }}
@@ -462,42 +461,43 @@ export default function AdminPage() {
                             position: 'absolute',
                             top: '12px',
                             right: '12px',
-                            background: '#10b981',
-                            color: 'white',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
+                            backgroundColor: 'var(--color-success-bg)',
+                            color: 'var(--color-success)',
+                            border: '1px solid rgba(46, 125, 50, 0.3)',
+                            padding: '3px 8px',
+                            borderRadius: 'var(--r-sm)',
                             fontSize: '11px',
-                            fontWeight: 600
+                            fontWeight: 700
                           }}>
-                            TOP {index + 1}
+                            RANK #{index + 1}
                           </div>
                         )}
                         
                         <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '18px', fontWeight: 700, color: '#667eea' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)', fontFamily: 'var(--font-mono)' }}>
                             H{item._id.hospitalNo.toString().padStart(2, '0')}
                           </div>
-                          <div style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937', marginTop: '4px', lineHeight: '1.4' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', marginTop: '4px', lineHeight: '1.4' }}>
                             {item._id.hospitalName}
                           </div>
                         </div>
 
                         <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '32px', fontWeight: 800, color: '#667eea' }}>
+                          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)' }}>
                             {item.count}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>applications processed</div>
+                          <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>birth registrations processed</div>
                         </div>
 
                         <div>
-                          <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '4px' }}>
-                            Relative Volume
+                          <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', marginBottom: '4px', fontWeight: 600 }}>
+                            Relative Volume Share
                           </div>
-                          <div style={{ background: '#e5e7eb', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                          <div style={{ background: '#E8EAED', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
                             <div style={{
                               width: `${relativePerformance}%`,
                               height: '100%',
-                              background: 'linear-gradient(90deg, #667eea, #764ba2)',
+                              backgroundColor: 'var(--color-teal)',
                               borderRadius: '4px'
                             }} />
                           </div>
@@ -513,125 +513,102 @@ export default function AdminPage() {
             {activeTab === 'performance' && (
               <>
                 <div style={{ marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px' }}>
-                    ⚡ System Performance Metrics
+                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '6px', color: 'var(--color-navy)' }}>
+                    ⚡ Service Level Agreement (SLA) & Efficiency
                   </h2>
-                  <p style={{ color: '#6b7280', fontSize: '14px' }}>
-                    Key performance indicators and operational efficiency metrics
+                  <p style={{ color: 'var(--color-gray-text)', fontSize: '14px' }}>
+                    Government service benchmark metrics and processing velocity
                   </p>
                 </div>
 
-                {/* Performance Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                   <div className="card" style={{ padding: '24px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#6b7280', marginBottom: '12px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-gray-text)', marginBottom: '8px', textTransform: 'uppercase' }}>
                       Average Turnaround Time
                     </div>
-                    <div style={{ fontSize: '48px', fontWeight: 800, color: '#3b82f6', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-navy)', marginBottom: '6px' }}>
                       {analytics.turnaroundStats.averageTurnaroundHours > 0 
                         ? Math.round(analytics.turnaroundStats.averageTurnaroundHours) 
                         : 0}
-                      <span style={{ fontSize: '24px' }}>h</span>
+                      <span style={{ fontSize: '20px', color: 'var(--color-gray-text)' }}> hours</span>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                      Min: {Math.round(analytics.turnaroundStats.minTurnaroundHours)}h | 
-                      Max: {Math.round(analytics.turnaroundStats.maxTurnaroundHours)}h
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>
+                      Min: {Math.round(analytics.turnaroundStats.minTurnaroundHours)}h | Max: {Math.round(analytics.turnaroundStats.maxTurnaroundHours)}h
                     </div>
                   </div>
 
-                  <div className="card" style={{ padding: '24px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#6b7280', marginBottom: '12px' }}>
-                      Approval Rate
+                  <div className="card" style={{ padding: '24px', borderLeft: '4px solid var(--color-success)' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-gray-text)', marginBottom: '8px', textTransform: 'uppercase' }}>
+                      Approval Compliance
                     </div>
-                    <div style={{ fontSize: '48px', fontWeight: 800, color: '#10b981', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-success)', marginBottom: '6px' }}>
                       {insights?.successRate}%
                     </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                      {analytics.statusCounts.find(s => s._id === 'operator_approved')?.count || 0} out of {analytics.totalApplications} applications
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>
+                      {analytics.statusCounts.find(s => s._id === 'operator_approved')?.count || 0} approved out of {analytics.totalApplications} total
                     </div>
                   </div>
 
-                  <div className="card" style={{ padding: '24px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#6b7280', marginBottom: '12px' }}>
+                  <div className="card" style={{ padding: '24px', borderLeft: '4px solid var(--color-danger)' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-gray-text)', marginBottom: '8px', textTransform: 'uppercase' }}>
                       Rejection Rate
                     </div>
-                    <div style={{ fontSize: '48px', fontWeight: 800, color: '#ef4444', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '42px', fontWeight: 800, color: 'var(--color-danger)', marginBottom: '6px' }}>
                       {insights?.rejectionRate}%
                     </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>
                       {analytics.statusCounts.find(s => s._id === 'rejected')?.count || 0} applications rejected
-                    </div>
-                  </div>
-
-                  <div className="card" style={{ padding: '24px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#6b7280', marginBottom: '12px' }}>
-                      Pending Processing
-                    </div>
-                    <div style={{ fontSize: '48px', fontWeight: 800, color: '#f59e0b', marginBottom: '8px' }}>
-                      {analytics.statusCounts.find(s => s._id === 'pending')?.count || 0}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                      {((analytics.statusCounts.find(s => s._id === 'pending')?.count || 0) / analytics.totalApplications * 100).toFixed(1)}% of total workload
                     </div>
                   </div>
                 </div>
 
                 {/* Performance Indicators */}
                 <div className="card" style={{ marginBottom: '24px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>
-                    📊 Efficiency Indicators
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px', color: 'var(--color-navy)' }}>
+                    📊 Key Quality Indicators
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {[
                       {
-                        label: 'Overall Efficiency',
+                        label: 'Overall Process Compliance',
                         value: parseFloat(insights?.successRate || '0') > 90 ? 95 : parseFloat(insights?.successRate || '0'),
-                        color: '#10b981',
+                        color: 'var(--color-success)',
                         target: 90,
-                        status: parseFloat(insights?.successRate || '0') >= 90 ? 'Excellent' : 'Good'
+                        status: parseFloat(insights?.successRate || '0') >= 90 ? 'Excellent' : 'Compliant'
                       },
                       {
-                        label: 'Processing Speed',
+                        label: 'Verification Turnaround Speed',
                         value: analytics.turnaroundStats.averageTurnaroundHours < 72 ? 85 : 60,
-                        color: '#3b82f6',
+                        color: 'var(--color-teal)',
                         target: 80,
-                        status: analytics.turnaroundStats.averageTurnaroundHours < 72 ? 'Good' : 'Needs Improvement'
+                        status: analytics.turnaroundStats.averageTurnaroundHours < 72 ? 'Optimal' : 'Needs Optimization'
                       },
                       {
-                        label: 'Quality Score',
-                        value: 100 - parseFloat(insights?.rejectionRate || '0') * 2,
-                        color: '#8b5cf6',
+                        label: 'Document Accuracy & Submission Quality',
+                        value: Math.max(0, 100 - parseFloat(insights?.rejectionRate || '0') * 2),
+                        color: 'var(--color-navy)',
                         target: 85,
-                        status: parseFloat(insights?.rejectionRate || '0') < 8 ? 'Excellent' : 'Good'
+                        status: parseFloat(insights?.rejectionRate || '0') < 8 ? 'High Precision' : 'Standard'
                       }
                     ].map((indicator, index) => (
                       <div key={index}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: 600 }}>{indicator.label}</span>
+                          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>{indicator.label}</span>
                           <span style={{ fontSize: '14px', fontWeight: 700, color: indicator.color }}>
-                            {indicator.value.toFixed(0)}% - {indicator.status}
+                            {indicator.value.toFixed(0)}% — {indicator.status}
                           </span>
                         </div>
-                        <div style={{ position: 'relative', background: '#e5e7eb', height: '16px', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ position: 'relative', background: '#E8EAED', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
                           <div style={{
                             width: `${indicator.value}%`,
                             height: '100%',
-                            background: indicator.color,
+                            backgroundColor: indicator.color,
                             transition: 'width 0.5s ease',
-                            borderRadius: '8px'
-                          }} />
-                          <div style={{
-                            position: 'absolute',
-                            left: `${indicator.target}%`,
-                            top: 0,
-                            bottom: 0,
-                            width: '2px',
-                            background: '#374151',
-                            opacity: 0.5
+                            borderRadius: '6px'
                           }} />
                         </div>
-                        <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
-                          Target: {indicator.target}%
+                        <div style={{ fontSize: '12px', color: 'var(--color-gray-text)', marginTop: '4px' }}>
+                          Target Benchmark: {indicator.target}%
                         </div>
                       </div>
                     ))}
@@ -644,23 +621,23 @@ export default function AdminPage() {
             {activeTab === 'applications' && (
               <>
                 <div style={{ marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '8px' }}>
-                    📋 Application Management
+                  <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '6px', color: 'var(--color-navy)' }}>
+                    📋 Master Civil Registration Records
                   </h2>
-                  <p style={{ color: '#6b7280', fontSize: '14px' }}>
-                    Search, filter, and manage all applications across the system
+                  <p style={{ color: 'var(--color-gray-text)', fontSize: '14px' }}>
+                    Search, filter, and audit all birth applications across all jurisdictions
                   </p>
                 </div>
 
-                <div className="card">
+                <div className="card-plain" style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: 'var(--r-md)', padding: '24px' }}>
                   <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="🔍 Search by application number..."
+                      placeholder="🔍 Search by reference number (e.g. BC-2025)..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      style={{ flex: 1, minWidth: '200px' }}
+                      style={{ flex: 1, minWidth: '220px' }}
                     />
                     <select 
                       className="form-select" 
@@ -668,7 +645,7 @@ export default function AdminPage() {
                       onChange={e => setSelectedStatus(e.target.value)}
                       style={{ minWidth: '180px' }}
                     >
-                      <option value="">All Status</option>
+                      <option value="">All Statuses</option>
                       <option value="pending">Under Review</option>
                       <option value="verifier_approved">Hospital Verified</option>
                       <option value="operator_approved">Certificate Issued</option>
@@ -680,12 +657,12 @@ export default function AdminPage() {
                     <table>
                       <thead>
                         <tr>
-                          <th>Application No.</th>
+                          <th>Reference No.</th>
                           <th>Child Name</th>
-                          <th>Hospital</th>
+                          <th>Hospital Center</th>
                           <th>Status</th>
                           <th>Submitted</th>
-                          <th>Processing Time</th>
+                          <th>Processing SLA</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -697,46 +674,38 @@ export default function AdminPage() {
                           return (
                             <tr key={app._id}>
                               <td>
-                                <code style={{ color: '#667eea', fontSize: '13px', fontWeight: 600 }}>
+                                <code style={{ color: 'var(--color-navy)', fontSize: '13px', fontWeight: 700 }}>
                                   {app.applicationNumber}
                                 </code>
                               </td>
-                              <td style={{ fontWeight: 500 }}>
-                                {app.childName || <em style={{ color: '#9ca3af' }}>Not named</em>}
+                              <td style={{ fontWeight: 600 }}>
+                                {app.childName || <em style={{ color: 'var(--color-gray-text)', fontWeight: 400 }}>Not named</em>}
                               </td>
                               <td>
                                 <div style={{ fontSize: '13px' }}>
                                   {app.hospitalId ? (
                                     <>
-                                      <span style={{ fontWeight: 600, color: '#667eea' }}>
+                                      <span style={{ fontWeight: 700, color: 'var(--color-teal)' }}>
                                         H{app.hospitalId.hospitalNo.toString().padStart(2, '0')}
                                       </span>
                                       {' '}{app.hospitalId.name}
                                     </>
                                   ) : (
-                                    <em style={{ color: '#9ca3af' }}>No hospital</em>
+                                    <em style={{ color: 'var(--color-gray-text)' }}>No hospital assigned</em>
                                   )}
                                 </div>
                               </td>
                               <td>
-                                <span style={{
-                                  display: 'inline-block',
-                                  padding: '4px 12px',
-                                  borderRadius: '12px',
-                                  fontSize: '12px',
-                                  fontWeight: 600,
-                                  background: `${statusColors[app.status]}20`,
-                                  color: statusColors[app.status]
-                                }}>
+                                <span className={`badge badge-${app.status}`}>
                                   {statusLabels[app.status] || app.status}
                                 </span>
                               </td>
-                              <td style={{ fontSize: '13px', color: '#6b7280' }}>
+                              <td style={{ fontSize: '13px', color: 'var(--color-gray-text)' }}>
                                 {createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                               </td>
-                              <td style={{ fontSize: '13px', color: '#6b7280', fontWeight: 500 }}>
+                              <td style={{ fontSize: '13px', color: 'var(--color-gray-text)', fontWeight: 600 }}>
                                 {app.status === 'pending' ? (
-                                  <span style={{ color: '#f59e0b' }}>⏳ In progress...</span>
+                                  <span style={{ color: 'var(--color-alert)' }}>⏳ In Review</span>
                                 ) : (
                                   `${Math.floor(processingHours / 24)}d ${processingHours % 24}h`
                                 )}
@@ -749,10 +718,10 @@ export default function AdminPage() {
                   </div>
                   
                   {applications.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-                      <div style={{ fontSize: '16px', fontWeight: 600 }}>No applications found</div>
-                      <div style={{ fontSize: '14px', marginTop: '8px' }}>Try adjusting your search or filter criteria</div>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--color-gray-text)' }}>
+                      <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
+                      <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-navy)' }}>No records match the filter</div>
+                      <div style={{ fontSize: '14px', marginTop: '4px' }}>Try resetting or modifying the status filter query.</div>
                     </div>
                   )}
                 </div>
@@ -764,3 +733,4 @@ export default function AdminPage() {
     </>
   );
 }
+

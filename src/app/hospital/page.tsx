@@ -38,7 +38,7 @@ export default function VerifyPage() {
   const [acting, setActing] = useState(false);
   const [toast, setToast] = useState('');
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
 
   const fetchApps = useCallback(async () => {
     const res = await fetch('/api/applications');
@@ -71,7 +71,7 @@ export default function VerifyPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      showToast(action === 'approve' ? '✅ Application verified & forwarded to Operator' : '❌ Application rejected');
+      showToast(action === 'approve' ? '✅ Record verified & forwarded to Civil Registrar' : '❌ Application rejected');
       setSelected(null); setAction(null); setReason('');
       await fetchApps();
     } catch (e: unknown) {
@@ -87,16 +87,22 @@ export default function VerifyPage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span className="spinner" style={{ width: '40px', height: '40px', borderWidth: '3px' }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-bg-light)' }}>
+      <span className="spinner spinner-dark" style={{ width: '40px', height: '40px', borderWidth: '3px' }} />
     </div>
   );
 
   return (
     <>
-      {/* Toast */}
+      {/* Toast Notification */}
       {toast && (
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 300, background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '12px 20px', fontSize: '14px', boxShadow: 'var(--shadow)', animation: 'fadeIn 0.2s ease' }}>
+        <div style={{
+          position: 'fixed', top: '24px', right: '24px', zIndex: 300,
+          backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)',
+          borderLeft: '4px solid var(--color-teal)', borderRadius: 'var(--r-md)',
+          padding: '12px 20px', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)',
+          boxShadow: 'var(--shadow-md)'
+        }}>
           {toast}
         </div>
       )}
@@ -105,35 +111,38 @@ export default function VerifyPage() {
       {action && selected && (
         <div className="modal-overlay" onClick={() => setAction(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>{action === 'approve' ? '✅ Approve Application' : '❌ Reject Application'}</h3>
-            <p>
-              Application <strong>{selected.applicationNumber}</strong>
-              {selected.childName ? ` for ${selected.childName}` : ''}
+            <h3>{action === 'approve' ? '🏥 Verify Hospital Birth Record' : '❌ Reject Application'}</h3>
+            <p style={{ marginTop: '6px', marginBottom: '16px' }}>
+              Reference ID: <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-navy)' }}>{selected.applicationNumber}</strong>
+              {selected.childName ? ` (Child: ${selected.childName})` : ''}
             </p>
             {action === 'reject' && (
-              <div className="form-group" style={{ marginBottom: '4px' }}>
-                <label className="form-label">Rejection Reason <span className="req">*</span></label>
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <label className="form-label">Reason for Rejection <span className="req">*</span></label>
                 <textarea
                   className="form-textarea"
-                  placeholder="Explain the reason for rejection so the parent can resubmit correctly..."
+                  placeholder="Provide a clear explanation for the applicant (e.g. Mismatched hospital delivery record, missing parent signature)..."
                   value={reason}
                   onChange={e => setReason(e.target.value)}
                 />
               </div>
             )}
             {action === 'approve' && (
-              <div className="alert alert-info" style={{ margin: '0 0 8px' }}>
-                This will mark the application as verified and notify the parent. It will then appear in the Operator&apos;s queue for final approval.
+              <div className="alert alert-info" style={{ margin: '0 0 16px' }}>
+                <span>ℹ️</span>
+                <span>
+                  Confirming verification will certify the medical institutional record and forward this application to the Civil Registration Operator for final certificate generation.
+                </span>
               </div>
             )}
             <div className="modal-actions">
               <button className="btn btn-ghost" onClick={() => { setAction(null); setReason(''); }}>Cancel</button>
               <button
-                className={`btn ${action === 'approve' ? 'btn-success' : 'btn-danger'}`}
+                className={`btn ${action === 'approve' ? 'btn-primary' : 'btn-danger'}`}
                 onClick={handleAction}
                 disabled={acting || (action === 'reject' && !reason.trim())}
               >
-                {acting ? <span className="spinner" /> : action === 'approve' ? '✅ Confirm Approval' : '❌ Confirm Rejection'}
+                {acting ? <span className="spinner" /> : action === 'approve' ? '✅ Confirm Verification' : '❌ Confirm Rejection'}
               </button>
             </div>
           </div>
@@ -143,64 +152,70 @@ export default function VerifyPage() {
       <nav className="navbar">
         <div className="navbar-inner">
           <Link href="/" className="navbar-brand">
-            <span className="emblem">🏛️</span><span>Birth Certificate Portal</span>
+            <span className="emblem">🏛️</span>
+            <div>
+              <div>Birth Certificate Portal</div>
+              <span className="navbar-brand-subtitle">Hospital Staff Verification</span>
+            </div>
           </Link>
           <div className="navbar-nav">
-            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>👋 {user?.name}</span>
-            <span className="badge badge-hospital_staff">Hospital Staff</span>
-            <button className="btn btn-ghost btn-sm" onClick={logout}>Logout</button>
+            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)' }}>👤 {user?.name}</span>
+            <span className="badge badge-hospital_staff" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.3)' }}>
+              Hospital Staff
+            </span>
+            <button className="btn btn-header-ghost btn-sm" onClick={logout}>Sign Out</button>
           </div>
         </div>
       </nav>
 
-      <div className="container" style={{ padding: '32px 24px 80px' }}>
+      <div className="container" style={{ padding: '36px 24px 80px' }}>
         <div className="page-header">
-          <h1>🏥 Hospital Verification Queue</h1>
-          <p className="text-muted">Review and verify birth certificate applications from your hospital. Approved applications move to the Operator queue.</p>
+          <h1>🏥 Hospital Medical Verification Queue</h1>
+          <p className="text-muted">Validate institutional delivery records, parental names, and birth details prior to statutory civil registration.</p>
         </div>
 
         {apps.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎉</div>
-            <h3>All caught up!</h3>
-            <p className="text-muted">No pending applications to review.</p>
+          <div className="card-plain" style={{ textAlign: 'center', padding: '60px 24px', backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+            <h3 style={{ color: 'var(--color-navy)', marginBottom: '6px' }}>Verification Queue Clear</h3>
+            <p className="text-muted">There are no pending birth registrations requiring institutional verification at this time.</p>
           </div>
         ) : (
           <>
-            <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-              {apps.length} application{apps.length !== 1 ? 's' : ''} pending review
+            <div style={{ fontSize: '14px', color: 'var(--color-gray-text)', marginBottom: '16px', fontWeight: 600 }}>
+              📋 {apps.length} application{apps.length !== 1 ? 's' : ''} awaiting verification
             </div>
 
             {/* Selected Detail View */}
             {selected ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="flex justify-between items-center flex-wrap gap-3">
-                  <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back to List</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back to Queue List</button>
                   <div className="flex gap-2">
-                    <button className="btn btn-danger btn-sm" onClick={() => setAction('reject')}>❌ Reject</button>
-                    <button className="btn btn-success" onClick={() => setAction('approve')}>✅ Verify & Forward</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => setAction('reject')}>❌ Reject Application</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAction('approve')}>✅ Verify & Forward</button>
                   </div>
                 </div>
 
                 <div className="app-number-display">
-                  <div className="label">Application Number</div>
+                  <div className="label">Application Reference Number</div>
                   <div className="number">{selected.applicationNumber}</div>
                 </div>
 
                 {[
-                  { title: '👶 Child', fields: [['Date of Birth', new Date(selected.dateOfBirth).toLocaleDateString('en-IN')], ['Sex', selected.sex], ['Name', selected.childName || '—'], ['Place of Birth', selected.placeOfBirth], ['Delivery', selected.deliveryMethod], ['Birth Weight', selected.birthWeight ? `${selected.birthWeight} kg` : '—'], ['Gestation', selected.gestationPeriod ? `${selected.gestationPeriod} wks` : '—']] },
-                  { title: '👨 Father', fields: [['Name', selected.fatherName]] },
-                  { title: '👩 Mother', fields: [['Name', selected.motherName], ['Age at Delivery', `${selected.motherAgeAtDelivery} yrs`]] },
-                  { title: '📍 Location', fields: [['District', selected.district], ['State', selected.state]] },
-                  { title: '📬 Contact', fields: [['Notification Email', selected.contactEmail], ['Informant', selected.informantName]] },
+                  { title: '👶 Child & Delivery Record', fields: [['Date of Birth', new Date(selected.dateOfBirth).toLocaleDateString('en-IN')], ['Sex', selected.sex ? selected.sex.toUpperCase() : '—'], ['Name', selected.childName || 'Not yet named'], ['Place of Birth', selected.placeOfBirth], ['Delivery Method', selected.deliveryMethod], ['Birth Weight', selected.birthWeight ? `${selected.birthWeight} kg` : '—'], ['Gestation Period', selected.gestationPeriod ? `${selected.gestationPeriod} wks` : '—']] },
+                  { title: '👨 Father Details', fields: [['Father\'s Name', selected.fatherName]] },
+                  { title: '👩 Mother Details', fields: [['Mother\'s Name', selected.motherName], ['Age at Delivery', `${selected.motherAgeAtDelivery} years`]] },
+                  { title: '📍 Residence & Jurisdiction', fields: [['District', selected.district], ['State', selected.state]] },
+                  { title: '📬 Contact & Informant', fields: [['Notification Email', selected.contactEmail], ['Informant Name', selected.informantName]] },
                 ].map(s => (
                   <div className="form-section" key={s.title}>
                     <div className="form-section-title">{s.title}</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '14px' }}>
                       {s.fields.map(([l, v]) => (
                         <div key={l}>
-                          <div style={{ fontSize: '11px', color: 'var(--text-faint)', textTransform: 'uppercase', fontWeight: 600 }}>{l}</div>
-                          <div style={{ fontSize: '14px', color: 'var(--text)', fontWeight: 500 }}>{v}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', textTransform: 'uppercase', fontWeight: 700 }}>{l}</div>
+                          <div style={{ fontSize: '14px', color: 'var(--color-text-primary)', fontWeight: 600, marginTop: '2px' }}>{v}</div>
                         </div>
                       ))}
                     </div>
@@ -213,32 +228,32 @@ export default function VerifyPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Application No.</th>
+                      <th>Reference No.</th>
                       <th>Child / Parents</th>
                       <th>DOB</th>
-                      <th>Location</th>
-                      <th>Submitted</th>
-                      <th>Actions</th>
+                      <th>Jurisdiction</th>
+                      <th>Submitted Date</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {apps.map(app => (
                       <tr key={app._id}>
                         <td>
-                          <code style={{ color: 'var(--accent)', fontSize: '13px' }}>{app.applicationNumber}</code>
+                          <code style={{ color: 'var(--color-navy)', fontSize: '13px', fontWeight: 700 }}>{app.applicationNumber}</code>
                         </td>
                         <td>
-                          <div style={{ fontWeight: 600, fontSize: '14px' }}>{app.childName || <em style={{ color: 'var(--text-faint)' }}>Not named</em>}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{app.fatherName} & {app.motherName}</div>
+                          <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--color-navy)' }}>{app.childName || <em style={{ color: 'var(--color-gray-text)', fontWeight: 400 }}>Not named</em>}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>Parents: {app.fatherName} & {app.motherName}</div>
                         </td>
-                        <td style={{ fontSize: '13px' }}>{new Date(app.dateOfBirth).toLocaleDateString('en-IN')}</td>
-                        <td style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{app.district}, {app.state}</td>
-                        <td style={{ fontSize: '12px', color: 'var(--text-faint)' }}>{new Date(app.createdAt).toLocaleDateString('en-IN')}</td>
+                        <td style={{ fontSize: '13px', fontWeight: 500 }}>{new Date(app.dateOfBirth).toLocaleDateString('en-IN')}</td>
+                        <td style={{ fontSize: '13px', color: 'var(--color-gray-text)' }}>{app.district}, {app.state}</td>
+                        <td style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>{new Date(app.createdAt).toLocaleDateString('en-IN')}</td>
                         <td>
                           <div className="flex gap-2">
                             <button className="btn btn-ghost btn-sm" onClick={() => setSelected(app)}>View</button>
-                            <button className="btn btn-success btn-sm" onClick={() => { setSelected(app); setAction('approve'); }}>✅</button>
-                            <button className="btn btn-danger btn-sm" onClick={() => { setSelected(app); setAction('reject'); }}>❌</button>
+                            <button className="btn btn-primary btn-sm" onClick={() => { setSelected(app); setAction('approve'); }} title="Verify">✅</button>
+                            <button className="btn btn-danger btn-sm" onClick={() => { setSelected(app); setAction('reject'); }} title="Reject">❌</button>
                           </div>
                         </td>
                       </tr>
@@ -253,3 +268,4 @@ export default function VerifyPage() {
     </>
   );
 }
+
