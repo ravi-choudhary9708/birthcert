@@ -63,6 +63,10 @@ export interface IApplication extends Document {
   approvedBy?: mongoose.Types.ObjectId;
   approvedAt?: Date;
 
+  // Hospital assignment
+  hospitalId: mongoose.Types.ObjectId;   // which hospital the parent selected
+  hospitalNo: number;                    // denormalized for quick display
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -119,6 +123,9 @@ const ApplicationSchema = new Schema<IApplication>(
     verifiedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     approvedAt: { type: Date },
+
+    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true },
+    hospitalNo: { type: Number, required: true, min: 1, max: 39 },
   },
   { timestamps: true }
 );

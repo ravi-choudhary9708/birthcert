@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const STEPS = ['Child Info', 'Father Details', 'Mother Details', 'Address & Birth', 'Review & Submit'];
@@ -14,6 +14,7 @@ const initialForm: FormData = {
   dateOfBirth: '',
   sex: '',
   childName: '',
+  hospitalId: '',  // NEW: Hospital selection
   fatherName: '',
   fatherMobile: '',
   fatherEmail: '',
@@ -50,12 +51,27 @@ const initialForm: FormData = {
 export default function ApplyPage() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
+  const [hospitals, setHospitals] = useState<Array<{ _id: string; hospitalNo: number; name: string; district: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [appNumber, setAppNumber] = useState('');
   const [error, setError] = useState('');
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  // Load hospitals on component mount
+  useEffect(() => {
+    async function loadHospitals() {
+      try {
+        const res = await fetch('/api/hospitals');
+        const data = await res.json();
+        setHospitals(data.hospitals || []);
+      } catch (err) {
+        console.error('Failed to load hospitals:', err);
+      }
+    }
+    loadHospitals();
+  }, []);
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -83,37 +99,49 @@ export default function ApplyPage() {
         <nav className="navbar">
           <div className="navbar-inner">
             <Link href="/" className="navbar-brand">
-              <span className="emblem">🏛️</span><span>Birth Certificate Portal</span>
+              <span className="emblem">🏛️</span>
+              <div>
+                <div>Birth Certificate Portal</div>
+                <span className="navbar-brand-subtitle">Civil Registration System</span>
+              </div>
             </Link>
+            <div className="navbar-nav">
+              <Link href="/track" className="nav-link">🔍 Track Status</Link>
+            </div>
           </div>
         </nav>
-        <div className="container-xs" style={{ padding: '80px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
-          <h1 style={{ fontSize: '28px', marginBottom: '8px' }}>Application Submitted!</h1>
-          <p className="text-muted" style={{ marginBottom: '32px' }}>
-            A confirmation email has been sent to <strong>{form.contactEmail}</strong>
+        <div className="container-xs" style={{ padding: '60px 24px', textAlign: 'center' }}>
+          <div style={{
+            width: '64px', height: '64px', margin: '0 auto 16px',
+            backgroundColor: 'var(--color-success-bg)',
+            color: 'var(--color-success)',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px'
+          }}>🎉</div>
+          <h1 style={{ fontSize: '28px', marginBottom: '8px', color: 'var(--color-navy)' }}>Application Successfully Submitted</h1>
+          <p className="text-muted" style={{ marginBottom: '28px', fontSize: '15px' }}>
+            An official registration receipt and confirmation email has been sent to <strong>{form.contactEmail}</strong>
           </p>
 
-          <div className="app-number-display" style={{ marginBottom: '32px' }}>
-            <div className="label">Your Application Number</div>
+          <div className="app-number-display" style={{ marginBottom: '28px' }}>
+            <div className="label">Official Application Reference Number</div>
             <div className="number">{appNumber}</div>
-            <div className="text-muted text-sm mt-2">Save this number to track your application</div>
+            <div className="text-muted text-sm mt-2">Please preserve this reference number for all tracking and enquiries</div>
           </div>
 
-          <div className="alert alert-info" style={{ marginBottom: '24px', textAlign: 'left' }}>
-            <span>📩</span>
+          <div className="alert alert-info" style={{ marginBottom: '28px', textAlign: 'left' }}>
+            <span style={{ fontSize: '20px' }}>📋</span>
             <div>
-              <strong>What happens next?</strong><br />
-              Your application will be reviewed by our verification team. You&apos;ll receive email updates at each step. Final approval typically takes 3–5 business days.
+              <strong>Next Verification Steps:</strong><br />
+              Your application has been routed to the selected hospital registrar. Once verified, it will proceed for final operator approval. Standard turnaround time is 3–5 working days.
             </div>
           </div>
 
           <div className="flex gap-3 justify-center flex-wrap">
             <Link href={`/track?app=${appNumber}`} className="btn btn-primary btn-lg">
-              🔍 Track Your Application
+              🔍 Track Application Status
             </Link>
-            <Link href="/" className="btn btn-ghost">
-              Back to Home
+            <Link href="/" className="btn btn-ghost btn-lg">
+              ← Return to Home
             </Link>
           </div>
         </div>
@@ -126,18 +154,22 @@ export default function ApplyPage() {
       <nav className="navbar">
         <div className="navbar-inner">
           <Link href="/" className="navbar-brand">
-            <span className="emblem">🏛️</span><span>Birth Certificate Portal</span>
+            <span className="emblem">🏛️</span>
+            <div>
+              <div>Birth Certificate Portal</div>
+              <span className="navbar-brand-subtitle">Civil Registration System</span>
+            </div>
           </Link>
           <div className="navbar-nav">
-            <Link href="/track" className="nav-link">🔍 Track</Link>
+            <Link href="/track" className="nav-link">🔍 Track Application</Link>
           </div>
         </div>
       </nav>
 
-      <div className="container-sm" style={{ padding: '40px 24px 80px' }}>
+      <div className="container-sm" style={{ padding: '36px 24px 80px' }}>
         <div className="page-header">
-          <h1>📋 Birth Certificate Application</h1>
-          <p className="text-muted">Fill all required fields. You will receive your application number by email.</p>
+          <h1>📋 Online Birth Certificate Registration</h1>
+          <p className="text-muted">Form No. 1 — Legal reporting under Section 8/9 of Registration of Births and Deaths Act</p>
         </div>
 
         {/* Steps */}
@@ -153,6 +185,22 @@ export default function ApplyPage() {
         {/* ── Step 0: Child Info ── */}
         {step === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="form-section">
+              <div className="form-section-title">🏥 Hospital Selection</div>
+              <div className="form-group">
+                <label className="form-label">Select Hospital <span className="req">*</span></label>
+                <select className="form-select" value={form.hospitalId as string} onChange={e => set('hospitalId', e.target.value)}>
+                  <option value="">Choose the hospital where birth occurred</option>
+                  {hospitals.map(h => (
+                    <option key={h._id} value={h._id}>
+                      H{h.hospitalNo.toString().padStart(2, '0')} - {h.name} ({h.district})
+                    </option>
+                  ))}
+                </select>
+                <span className="form-hint">Select the hospital that will verify your application</span>
+              </div>
+            </div>
+
             <div className="form-section">
               <div className="form-section-title">👶 Child Information</div>
               <div className="form-row form-row-2">
@@ -228,8 +276,8 @@ export default function ApplyPage() {
             <div className="flex justify-between mt-4">
               <div />
               <button className="btn btn-primary" onClick={() => {
-                if (!form.dateOfBirth || !form.sex || !form.placeOfBirth || !form.deliveryMethod) {
-                  setError('Please fill all required fields'); return;
+                if (!form.hospitalId || !form.dateOfBirth || !form.sex || !form.placeOfBirth || !form.deliveryMethod) {
+                  setError('Please fill all required fields including hospital selection'); return;
                 }
                 setError(''); setStep(1);
               }}>Next: Father Details →</button>
@@ -491,12 +539,20 @@ export default function ApplyPage() {
             <div className="flex justify-between mt-4">
               <button className="btn btn-ghost" onClick={() => { setError(''); setStep(3); }}>← Back</button>
               <button className="btn btn-primary btn-lg" onClick={handleSubmit} disabled={submitting}>
-                {submitting ? <><span className="spinner" /> Submitting...</> : '✅ Submit Application'}
+                {submitting ? <><span className="spinner" /> Submitting Registration...</> : '✅ Submit Birth Registration'}
               </button>
             </div>
           </div>
         )}
       </div>
+
+      <footer className="footer">
+        <div className="footer-bottom" style={{ borderTop: 'none', paddingTop: 0 }}>
+          <div>© {new Date().getFullYear()} Civil Registration System, Government of India.</div>
+          <div><Link href="/" style={{ color: 'rgba(255,255,255,0.75)' }}>← Back to Public Portal</Link></div>
+        </div>
+      </footer>
     </>
   );
 }
+

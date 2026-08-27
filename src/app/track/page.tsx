@@ -24,16 +24,16 @@ interface TrackData {
 
 const STATUS_LABELS: Record<AppStatus, string> = {
   pending: 'Pending Review',
-  verifier_approved: 'Verified — Awaiting Final Approval',
-  operator_approved: 'Approved ✓',
-  rejected: 'Rejected',
+  verifier_approved: 'Hospital Verified — Awaiting Final Approval',
+  operator_approved: 'Certificate Approved & Ready ✓',
+  rejected: 'Application Rejected',
 };
 
-const STATUS_COLORS: Record<AppStatus, string> = {
-  pending: 'var(--warning)',
-  verifier_approved: 'var(--info)',
-  operator_approved: 'var(--success)',
-  rejected: 'var(--danger)',
+const STATUS_BORDER_COLORS: Record<AppStatus, string> = {
+  pending: 'var(--color-alert)',
+  verifier_approved: 'var(--color-teal)',
+  operator_approved: 'var(--color-success)',
+  rejected: 'var(--color-danger)',
 };
 
 function fmt(d?: string) {
@@ -55,7 +55,7 @@ function TrackContent() {
     try {
       const res = await fetch(`/api/track?app=${encodeURIComponent(query)}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Not found');
+      if (!res.ok) throw new Error(json.error || 'Application record not found');
       setData(json.application);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Application not found');
@@ -64,7 +64,6 @@ function TrackContent() {
     }
   }
 
-  // Auto-track if URL has ?app=...
   useEffect(() => {
     const a = params.get('app');
     if (a) { setAppNum(a); handleTrack(a); }
@@ -73,49 +72,57 @@ function TrackContent() {
 
   const steps = data ? [
     { label: 'Application Submitted', done: true, date: data.createdAt, icon: '📋' },
-    { label: 'Verification Review', done: data.status !== 'pending', active: data.status === 'pending', date: data.verifiedAt, icon: '🔍' },
-    { label: 'Final Approval', done: data.status === 'operator_approved', active: data.status === 'verifier_approved', date: data.approvedAt, icon: '✅' },
-    { label: 'Certificate Issued', done: data.status === 'operator_approved', icon: '📜' },
+    { label: 'Hospital Verification', done: data.status !== 'pending', active: data.status === 'pending', date: data.verifiedAt, icon: '🏥' },
+    { label: 'Registrar Final Approval', done: data.status === 'operator_approved', active: data.status === 'verifier_approved', date: data.approvedAt, icon: '🏛️' },
+    { label: 'Official Certificate Issuance', done: data.status === 'operator_approved', icon: '📜' },
   ] : [];
 
   return (
-    <div className="container-xs" style={{ padding: '60px 24px 80px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
-        <h1 style={{ fontSize: '28px', marginBottom: '8px' }}>Track Your Application</h1>
-        <p className="text-muted">Enter your application number to check the current status</p>
+    <div className="container-xs" style={{ padding: '48px 24px 80px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{
+          width: '56px', height: '56px', margin: '0 auto 12px',
+          backgroundColor: 'var(--color-navy)',
+          color: '#FFFFFF',
+          borderRadius: 'var(--r-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px',
+          boxShadow: '0 4px 12px rgba(27, 59, 111, 0.2)'
+        }}>🔍</div>
+        <h1 style={{ fontSize: '26px', marginBottom: '6px', color: 'var(--color-navy)' }}>Track Application Status</h1>
+        <p className="text-muted" style={{ fontSize: '14px' }}>
+          Enter your unique Application Reference Number (e.g., <code style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>BC-2025-XXXX</code>)
+        </p>
       </div>
 
-      {/* Search */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '32px' }}>
+      {/* Search Input */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
         <input
           type="text"
           className="form-input"
-          placeholder="e.g. BC-2025-XXXXXXXX"
+          placeholder="Enter BC-2025-XXXXXXXX"
           value={appNum}
           onChange={e => setAppNum(e.target.value.toUpperCase())}
           onKeyDown={e => e.key === 'Enter' && handleTrack()}
-          style={{ fontFamily: 'monospace', fontSize: '16px', letterSpacing: '1px', flex: 1 }}
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '15px', letterSpacing: '1px', flex: 1 }}
           id="track-input"
         />
         <button className="btn btn-primary" onClick={() => handleTrack()} disabled={loading} style={{ flexShrink: 0 }}>
-          {loading ? <span className="spinner" /> : '🔍 Search'}
+          {loading ? <span className="spinner" /> : '🔍 Check Status'}
         </button>
       </div>
 
-      {error && <div className="alert alert-danger mb-4">{error}</div>}
+      {error && <div className="alert alert-danger mb-4"><span>⚠️</span> {error}</div>}
 
       {data && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Status Banner */}
-          <div className="card" style={{ borderColor: STATUS_COLORS[data.status], background: `${STATUS_COLORS[data.status]}10` }}>
+          <div className="card" style={{ borderLeft: `6px solid ${STATUS_BORDER_COLORS[data.status]}` }}>
             <div className="flex justify-between items-center flex-wrap gap-3">
               <div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>Application Number</div>
-                <div style={{ fontSize: '22px', fontWeight: '800', fontFamily: 'monospace', letterSpacing: '2px', color: 'var(--text)' }}>{data.applicationNumber}</div>
+                <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Application Number</div>
+                <div style={{ fontSize: '22px', fontWeight: '800', fontFamily: 'var(--font-mono)', letterSpacing: '2px', color: 'var(--color-navy)' }}>{data.applicationNumber}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Current Status</div>
+                <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>Current Status</div>
                 <span className={`badge badge-${data.status}`} style={{ fontSize: '13px', padding: '6px 14px' }}>
                   {STATUS_LABELS[data.status]}
                 </span>
@@ -126,13 +133,11 @@ function TrackContent() {
           {/* Rejection Notice */}
           {data.status === 'rejected' && data.rejectionReason && (
             <div className="alert alert-danger">
-              <span>❌</span>
+              <span style={{ fontSize: '20px' }}>❌</span>
               <div>
-                <strong>Rejection Reason:</strong><br />
-                {data.rejectionReason}
-                <div style={{ marginTop: '8px' }}>
-                  <Link href="/apply" className="btn btn-primary btn-sm">Submit New Application</Link>
-                </div>
+                <strong>Application Action Required:</strong>
+                <p style={{ marginTop: '4px', marginBottom: '8px' }}>{data.rejectionReason}</p>
+                <Link href="/apply" className="btn btn-primary btn-sm">Submit New Registration</Link>
               </div>
             </div>
           )}
@@ -140,17 +145,19 @@ function TrackContent() {
           {/* Approval Notice */}
           {data.status === 'operator_approved' && (
             <div className="alert alert-success">
-              <span>🎉</span>
+              <span style={{ fontSize: '20px' }}>🏛️</span>
               <div>
-                <strong>Congratulations! Your application has been approved.</strong><br />
-                Please visit your local Registration Office with your application number to collect the physical birth certificate.
+                <strong>Official Birth Certificate Approved & Generated</strong>
+                <p style={{ marginTop: '4px' }}>
+                  Your birth certificate registration has been officially approved. You may collect your physical certificate from the designated Municipal Civil Registration Office or download the digital signed record.
+                </p>
               </div>
             </div>
           )}
 
           {/* Timeline */}
-          <div className="card">
-            <h3 style={{ fontSize: '16px', marginBottom: '24px' }}>Application Progress</h3>
+          <div className="card-plain" style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: 'var(--r-md)', padding: '24px' }}>
+            <h3 style={{ fontSize: '16px', marginBottom: '20px', color: 'var(--color-navy)' }}>Application Verification Workflow</h3>
             <div className="timeline">
               {steps.map((s, i) => (
                 <div key={i} className={`timeline-item ${s.done ? 'done' : ''} ${s.active && !s.done ? 'active' : ''} ${data.status === 'rejected' && i === 1 ? 'rejected' : ''}`}>
@@ -167,21 +174,21 @@ function TrackContent() {
 
           {/* Application Details */}
           <div className="card">
-            <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Application Details</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <h3 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--color-navy)' }}>Registered Application Summary</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               {[
-                ['Child Name', data.childName || 'Not provided'],
+                ['Child Name', data.childName || 'Not provided (unnamed at birth)'],
                 ['Date of Birth', fmt(data.dateOfBirth)],
-                ['Sex', data.sex],
+                ['Sex', data.sex ? data.sex.toUpperCase() : '—'],
                 ['Father\'s Name', data.fatherName],
                 ['Mother\'s Name', data.motherName],
                 ['District', data.district],
                 ['State', data.state],
-                ['Applied On', fmt(data.createdAt)],
+                ['Date Applied', fmt(data.createdAt)],
               ].map(([l, v]) => (
                 <div key={l}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-faint)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>{l}</div>
-                  <div style={{ fontSize: '14px', color: 'var(--text)', fontWeight: 500 }}>{v}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--color-gray-text)', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>{l}</div>
+                  <div style={{ fontSize: '14px', color: 'var(--color-text-primary)', fontWeight: 600 }}>{v}</div>
                 </div>
               ))}
             </div>
@@ -198,18 +205,33 @@ export default function TrackPage() {
       <nav className="navbar">
         <div className="navbar-inner">
           <Link href="/" className="navbar-brand">
-            <span className="emblem">🏛️</span><span>Birth Certificate Portal</span>
+            <span className="emblem">🏛️</span>
+            <div>
+              <div>Birth Certificate Portal</div>
+              <span className="navbar-brand-subtitle">Civil Registration System</span>
+            </div>
           </Link>
           <div className="navbar-nav">
             <Link href="/apply" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '14px' }}>
-              Apply Now
+              📋 Apply Online
             </Link>
           </div>
         </div>
       </nav>
-      <Suspense fallback={<div style={{ textAlign: 'center', padding: '80px' }}>Loading...</div>}>
-        <TrackContent />
-      </Suspense>
+
+      <main style={{ flex: 1, backgroundColor: 'var(--color-bg-light)' }}>
+        <Suspense fallback={<div style={{ textAlign: 'center', padding: '80px', color: 'var(--color-gray-text)' }}>Loading application tracking...</div>}>
+          <TrackContent />
+        </Suspense>
+      </main>
+
+      <footer className="footer">
+        <div className="footer-bottom" style={{ borderTop: 'none', paddingTop: 0 }}>
+          <div>© {new Date().getFullYear()} Civil Registration System, Government of India.</div>
+          <div><Link href="/" style={{ color: 'rgba(255,255,255,0.75)' }}>← Back to Public Portal</Link></div>
+        </div>
+      </footer>
     </>
   );
 }
+

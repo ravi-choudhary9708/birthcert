@@ -21,14 +21,13 @@ interface Application {
   gestationPeriod?: number;
   motherAgeAtDelivery: number;
   informantName: string;
-  verifiedAt?: string;
   createdAt: string;
   status: string;
 }
 
 interface User { name: string; role: string; }
 
-export default function ApprovePage() {
+export default function VerifyPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [apps, setApps] = useState<Application[]>([]);
@@ -53,7 +52,7 @@ export default function ApprovePage() {
       const res = await fetch('/api/auth/me');
       if (!res.ok) { router.push('/login'); return; }
       const u = await res.json();
-      if (u.role !== 'operator') { router.push('/login'); return; }
+      if (u.role !== 'hospital_staff') { router.push('/login'); return; }
       setUser(u);
       await fetchApps();
       setLoading(false);
@@ -72,7 +71,7 @@ export default function ApprovePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      showToast(action === 'approve' ? '🎉 Final certificate approved and issued to citizen!' : '❌ Application rejected.');
+      showToast(action === 'approve' ? '✅ Record verified & forwarded to Civil Registrar' : '❌ Application rejected');
       setSelected(null); setAction(null); setReason('');
       await fetchApps();
     } catch (e: unknown) {
@@ -100,7 +99,7 @@ export default function ApprovePage() {
         <div style={{
           position: 'fixed', top: '24px', right: '24px', zIndex: 300,
           backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)',
-          borderLeft: '4px solid var(--color-success)', borderRadius: 'var(--r-md)',
+          borderLeft: '4px solid var(--color-teal)', borderRadius: 'var(--r-md)',
           padding: '12px 20px', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)',
           boxShadow: 'var(--shadow-md)'
         }}>
@@ -112,38 +111,38 @@ export default function ApprovePage() {
       {action && selected && (
         <div className="modal-overlay" onClick={() => setAction(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>{action === 'approve' ? '📜 Issue Official Birth Certificate' : '❌ Reject Registration Record'}</h3>
+            <h3>{action === 'approve' ? '🏥 Verify Hospital Birth Record' : '❌ Reject Application'}</h3>
             <p style={{ marginTop: '6px', marginBottom: '16px' }}>
               Reference ID: <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-navy)' }}>{selected.applicationNumber}</strong>
               {selected.childName ? ` (Child: ${selected.childName})` : ''}
             </p>
             {action === 'reject' && (
               <div className="form-group" style={{ marginBottom: '12px' }}>
-                <label className="form-label">Official Rejection Reason <span className="req">*</span></label>
+                <label className="form-label">Reason for Rejection <span className="req">*</span></label>
                 <textarea
                   className="form-textarea"
-                  placeholder="State the statutory reason for rejection..."
+                  placeholder="Provide a clear explanation for the applicant (e.g. Mismatched hospital delivery record, missing parent signature)..."
                   value={reason}
                   onChange={e => setReason(e.target.value)}
                 />
               </div>
             )}
             {action === 'approve' && (
-              <div className="alert alert-success" style={{ margin: '0 0 16px' }}>
-                <span>📜</span>
+              <div className="alert alert-info" style={{ margin: '0 0 16px' }}>
+                <span>ℹ️</span>
                 <span>
-                  This constitutes <strong>statutory final approval</strong>. The legal birth certificate record will be generated, the applicant notified, and the record archived in the civil register.
+                  Confirming verification will certify the medical institutional record and forward this application to the Civil Registration Operator for final certificate generation.
                 </span>
               </div>
             )}
             <div className="modal-actions">
               <button className="btn btn-ghost" onClick={() => { setAction(null); setReason(''); }}>Cancel</button>
               <button
-                className={`btn ${action === 'approve' ? 'btn-success' : 'btn-danger'}`}
+                className={`btn ${action === 'approve' ? 'btn-primary' : 'btn-danger'}`}
                 onClick={handleAction}
                 disabled={acting || (action === 'reject' && !reason.trim())}
               >
-                {acting ? <span className="spinner" /> : action === 'approve' ? '✅ Authorize & Issue Certificate' : '❌ Reject'}
+                {acting ? <span className="spinner" /> : action === 'approve' ? '✅ Confirm Verification' : '❌ Confirm Rejection'}
               </button>
             </div>
           </div>
@@ -156,13 +155,13 @@ export default function ApprovePage() {
             <span className="emblem">🏛️</span>
             <div>
               <div>Birth Certificate Portal</div>
-              <span className="navbar-brand-subtitle">Civil Registrar Operator Portal</span>
+              <span className="navbar-brand-subtitle">Hospital Staff Verification</span>
             </div>
           </Link>
           <div className="navbar-nav">
             <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)' }}>👤 {user?.name}</span>
-            <span className="badge badge-operator_approved" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.3)' }}>
-              Registrar Operator
+            <span className="badge badge-hospital_staff" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.3)' }}>
+              Hospital Staff
             </span>
             <button className="btn btn-header-ghost btn-sm" onClick={logout}>Sign Out</button>
           </div>
@@ -171,37 +170,31 @@ export default function ApprovePage() {
 
       <div className="container" style={{ padding: '36px 24px 80px' }}>
         <div className="page-header">
-          <h1>🏛️ Final Registrar Approval Queue</h1>
-          <p className="text-muted">Review hospital-verified records and grant statutory authorization for certificate generation.</p>
+          <h1>🏥 Hospital Medical Verification Queue</h1>
+          <p className="text-muted">Validate institutional delivery records, parental names, and birth details prior to statutory civil registration.</p>
         </div>
 
         {apps.length === 0 ? (
           <div className="card-plain" style={{ textAlign: 'center', padding: '60px 24px', backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>✨</div>
-            <h3 style={{ color: 'var(--color-navy)', marginBottom: '6px' }}>All Verified Applications Processed</h3>
-            <p className="text-muted">Hospital verified applications awaiting final authorization will appear in this queue.</p>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+            <h3 style={{ color: 'var(--color-navy)', marginBottom: '6px' }}>Verification Queue Clear</h3>
+            <p className="text-muted">There are no pending birth registrations requiring institutional verification at this time.</p>
           </div>
         ) : (
           <>
             <div style={{ fontSize: '14px', color: 'var(--color-gray-text)', marginBottom: '16px', fontWeight: 600 }}>
-              📋 {apps.length} application{apps.length !== 1 ? 's' : ''} awaiting registrar approval
+              📋 {apps.length} application{apps.length !== 1 ? 's' : ''} awaiting verification
             </div>
 
+            {/* Selected Detail View */}
             {selected ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div className="flex justify-between items-center flex-wrap gap-3">
-                  <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back to Approval Queue</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setSelected(null)}>← Back to Queue List</button>
                   <div className="flex gap-2">
                     <button className="btn btn-danger btn-sm" onClick={() => setAction('reject')}>❌ Reject Application</button>
-                    <button className="btn btn-success btn-sm" onClick={() => setAction('approve')}>✅ Finalize & Issue Certificate</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAction('approve')}>✅ Verify & Forward</button>
                   </div>
-                </div>
-
-                <div className="alert alert-info">
-                  <span>🏥</span>
-                  <span>
-                    This application was <strong>verified by the hospital medical authority</strong> on {selected.verifiedAt ? new Date(selected.verifiedAt).toLocaleDateString('en-IN') : '—'}.
-                  </span>
                 </div>
 
                 <div className="app-number-display">
@@ -210,11 +203,11 @@ export default function ApprovePage() {
                 </div>
 
                 {[
-                  { title: '👶 Child Information', fields: [['Date of Birth', new Date(selected.dateOfBirth).toLocaleDateString('en-IN')], ['Sex', selected.sex ? selected.sex.toUpperCase() : '—'], ['Name', selected.childName || 'Not yet named'], ['Place of Birth', selected.placeOfBirth], ['Delivery Method', selected.deliveryMethod], ['Birth Weight', selected.birthWeight ? `${selected.birthWeight} kg` : '—'], ['Gestation Period', selected.gestationPeriod ? `${selected.gestationPeriod} wks` : '—']] },
+                  { title: '👶 Child & Delivery Record', fields: [['Date of Birth', new Date(selected.dateOfBirth).toLocaleDateString('en-IN')], ['Sex', selected.sex ? selected.sex.toUpperCase() : '—'], ['Name', selected.childName || 'Not yet named'], ['Place of Birth', selected.placeOfBirth], ['Delivery Method', selected.deliveryMethod], ['Birth Weight', selected.birthWeight ? `${selected.birthWeight} kg` : '—'], ['Gestation Period', selected.gestationPeriod ? `${selected.gestationPeriod} wks` : '—']] },
                   { title: '👨 Father Details', fields: [['Father\'s Name', selected.fatherName]] },
                   { title: '👩 Mother Details', fields: [['Mother\'s Name', selected.motherName], ['Age at Delivery', `${selected.motherAgeAtDelivery} years`]] },
-                  { title: '📍 Location', fields: [['District', selected.district], ['State', selected.state]] },
-                  { title: '📬 Contact Details', fields: [['Notification Email', selected.contactEmail], ['Informant', selected.informantName]] },
+                  { title: '📍 Residence & Jurisdiction', fields: [['District', selected.district], ['State', selected.state]] },
+                  { title: '📬 Contact & Informant', fields: [['Notification Email', selected.contactEmail], ['Informant Name', selected.informantName]] },
                 ].map(s => (
                   <div className="form-section" key={s.title}>
                     <div className="form-section-title">{s.title}</div>
@@ -230,6 +223,7 @@ export default function ApprovePage() {
                 ))}
               </div>
             ) : (
+              /* List View */
               <div className="table-wrap">
                 <table>
                   <thead>
@@ -238,25 +232,27 @@ export default function ApprovePage() {
                       <th>Child / Parents</th>
                       <th>DOB</th>
                       <th>Jurisdiction</th>
-                      <th>Verified Date</th>
+                      <th>Submitted Date</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {apps.map(app => (
                       <tr key={app._id}>
-                        <td><code style={{ color: 'var(--color-navy)', fontSize: '13px', fontWeight: 700 }}>{app.applicationNumber}</code></td>
+                        <td>
+                          <code style={{ color: 'var(--color-navy)', fontSize: '13px', fontWeight: 700 }}>{app.applicationNumber}</code>
+                        </td>
                         <td>
                           <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--color-navy)' }}>{app.childName || <em style={{ color: 'var(--color-gray-text)', fontWeight: 400 }}>Not named</em>}</div>
                           <div style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>Parents: {app.fatherName} & {app.motherName}</div>
                         </td>
                         <td style={{ fontSize: '13px', fontWeight: 500 }}>{new Date(app.dateOfBirth).toLocaleDateString('en-IN')}</td>
                         <td style={{ fontSize: '13px', color: 'var(--color-gray-text)' }}>{app.district}, {app.state}</td>
-                        <td style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>{app.verifiedAt ? new Date(app.verifiedAt).toLocaleDateString('en-IN') : '—'}</td>
+                        <td style={{ fontSize: '12px', color: 'var(--color-gray-text)' }}>{new Date(app.createdAt).toLocaleDateString('en-IN')}</td>
                         <td>
                           <div className="flex gap-2">
                             <button className="btn btn-ghost btn-sm" onClick={() => setSelected(app)}>View</button>
-                            <button className="btn btn-success btn-sm" onClick={() => { setSelected(app); setAction('approve'); }} title="Approve">✅</button>
+                            <button className="btn btn-primary btn-sm" onClick={() => { setSelected(app); setAction('approve'); }} title="Verify">✅</button>
                             <button className="btn btn-danger btn-sm" onClick={() => { setSelected(app); setAction('reject'); }} title="Reject">❌</button>
                           </div>
                         </td>

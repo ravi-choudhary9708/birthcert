@@ -9,7 +9,7 @@ export function getTokenFromRequest(req: NextRequest): JWTPayload | null {
 
 export function requireAuth(
   req: NextRequest,
-  allowedRoles: Array<'verifier' | 'operator'>
+  allowedRoles: Array<'hospital_staff' | 'operator' | 'admin'>
 ): { user: JWTPayload } | NextResponse {
   const user = getTokenFromRequest(req);
   if (!user) {
