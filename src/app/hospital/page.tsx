@@ -52,7 +52,7 @@ export default function VerifyPage() {
       const res = await fetch('/api/auth/me');
       if (!res.ok) { router.push('/login'); return; }
       const u = await res.json();
-      if (u.role !== 'verifier') { router.push('/login'); return; }
+      if (u.role !== 'hospital_staff') { router.push('/login'); return; }
       setUser(u);
       await fetchApps();
       setLoading(false);
@@ -147,7 +147,7 @@ export default function VerifyPage() {
           </Link>
           <div className="navbar-nav">
             <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>👋 {user?.name}</span>
-            <span className="badge badge-verifier_approved">Verifier</span>
+            <span className="badge badge-hospital_staff">Hospital Staff</span>
             <button className="btn btn-ghost btn-sm" onClick={logout}>Logout</button>
           </div>
         </div>
@@ -155,8 +155,8 @@ export default function VerifyPage() {
 
       <div className="container" style={{ padding: '32px 24px 80px' }}>
         <div className="page-header">
-          <h1>🔍 Verification Queue</h1>
-          <p className="text-muted">Review and verify pending birth certificate applications. Approved applications move to the Operator queue.</p>
+          <h1>🏥 Hospital Verification Queue</h1>
+          <p className="text-muted">Review and verify birth certificate applications from your hospital. Approved applications move to the Operator queue.</p>
         </div>
 
         {apps.length === 0 ? (

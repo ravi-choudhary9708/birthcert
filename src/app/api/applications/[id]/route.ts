@@ -36,10 +36,15 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
     const application = await Application.findById(id);
     if (!application) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    // Verifier actions
-    if (user.role === 'verifier') {
+    // Hospital Staff actions
+    if (user.role === 'hospital_staff') {
       if (application.status !== 'pending')
         return NextResponse.json({ error: 'Application is not pending' }, { status: 400 });
+
+      // Row-level security: Hospital staff can only approve/reject their own hospital's applications
+      if (!user.hospitalId || application.hospitalId.toString() !== user.hospitalId) {
+        return NextResponse.json({ error: 'You can only process applications from your hospital' }, { status: 403 });
+      }
 
       if (action === 'approve') {
         application.status = 'verifier_approved';

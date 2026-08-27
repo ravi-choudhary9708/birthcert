@@ -6,8 +6,9 @@ const JWT_EXPIRES_IN = '8h';
 export interface JWTPayload {
   id: string;
   email: string;
-  role: 'verifier' | 'operator';
+  role: 'hospital_staff' | 'operator' | 'admin';
   name: string;
+  hospitalId?: string;  // Present for hospital_staff role
 }
 
 export function signToken(payload: JWTPayload): string {

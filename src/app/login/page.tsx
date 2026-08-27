@@ -24,8 +24,9 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
       // Redirect based on role
-      if (data.role === 'verifier') router.push('/verify');
+      if (data.role === 'hospital_staff') router.push('/hospital');
       else if (data.role === 'operator') router.push('/approve');
+      else if (data.role === 'admin') router.push('/admin');
       else router.push('/');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Login failed');
@@ -106,8 +107,9 @@ export default function LoginPage() {
             </div>
             <div style={{ fontSize: '12px', color: 'var(--text-faint)', lineHeight: '1.8' }}>
               Run <code style={{ background: 'rgba(255,255,255,0.08)', padding: '1px 6px', borderRadius: '4px' }}>/api/seed</code> once to create:<br />
-              Verifier: <code>verifier@example.com</code> / <code>Verifier@123</code><br />
-              Operator: <code>operator@example.com</code> / <code>Operator@123</code>
+              Hospital Staff: <code>hospital1@example.com</code> / <code>Hospital@123</code><br />
+              Operator: <code>operator@example.com</code> / <code>Operator@123</code><br />
+              Admin: <code>admin@system.gov</code> / <code>Admin@System@2025</code>
             </div>
           </div>
 

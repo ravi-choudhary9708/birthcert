@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const STEPS = ['Child Info', 'Father Details', 'Mother Details', 'Address & Birth', 'Review & Submit'];
@@ -14,6 +14,7 @@ const initialForm: FormData = {
   dateOfBirth: '',
   sex: '',
   childName: '',
+  hospitalId: '',  // NEW: Hospital selection
   fatherName: '',
   fatherMobile: '',
   fatherEmail: '',
@@ -50,12 +51,27 @@ const initialForm: FormData = {
 export default function ApplyPage() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormData>(initialForm);
+  const [hospitals, setHospitals] = useState<Array<{ _id: string; hospitalNo: number; name: string; district: string }>>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [appNumber, setAppNumber] = useState('');
   const [error, setError] = useState('');
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  // Load hospitals on component mount
+  useEffect(() => {
+    async function loadHospitals() {
+      try {
+        const res = await fetch('/api/hospitals');
+        const data = await res.json();
+        setHospitals(data.hospitals || []);
+      } catch (err) {
+        console.error('Failed to load hospitals:', err);
+      }
+    }
+    loadHospitals();
+  }, []);
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -154,6 +170,22 @@ export default function ApplyPage() {
         {step === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="form-section">
+              <div className="form-section-title">🏥 Hospital Selection</div>
+              <div className="form-group">
+                <label className="form-label">Select Hospital <span className="req">*</span></label>
+                <select className="form-select" value={form.hospitalId as string} onChange={e => set('hospitalId', e.target.value)}>
+                  <option value="">Choose the hospital where birth occurred</option>
+                  {hospitals.map(h => (
+                    <option key={h._id} value={h._id}>
+                      H{h.hospitalNo.toString().padStart(2, '0')} - {h.name} ({h.district})
+                    </option>
+                  ))}
+                </select>
+                <span className="form-hint">Select the hospital that will verify your application</span>
+              </div>
+            </div>
+
+            <div className="form-section">
               <div className="form-section-title">👶 Child Information</div>
               <div className="form-row form-row-2">
                 <div className="form-group">
@@ -228,8 +260,8 @@ export default function ApplyPage() {
             <div className="flex justify-between mt-4">
               <div />
               <button className="btn btn-primary" onClick={() => {
-                if (!form.dateOfBirth || !form.sex || !form.placeOfBirth || !form.deliveryMethod) {
-                  setError('Please fill all required fields'); return;
+                if (!form.hospitalId || !form.dateOfBirth || !form.sex || !form.placeOfBirth || !form.deliveryMethod) {
+                  setError('Please fill all required fields including hospital selection'); return;
                 }
                 setError(''); setStep(1);
               }}>Next: Father Details →</button>
